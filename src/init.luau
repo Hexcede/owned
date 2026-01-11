@@ -5,6 +5,7 @@ local Types = require("@self/Types")
 
 local WeakMap = require("@self/Weak/WeakMap")
 local Lifetime = require("@self/Lifetime/Lifetime")
+local LifetimeMapper = require("@self/Mapper/LifetimeMapper")
 local RefCounter = require("@self/RefCounter/RefCounter")
 local Mapper = require("@self/Mapper/Mapper")
 local Pack = require("@self/Pack/Pack")
@@ -30,6 +31,7 @@ local Owned = table.freeze({
     Lifetime = Lifetime,
     RefCounter = RefCounter,
 
+    LifetimeMapper = LifetimeMapper,
     Mapper = Mapper,
     Pack = Pack,
 })
