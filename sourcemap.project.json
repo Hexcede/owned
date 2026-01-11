@@ -1,0 +1,9 @@
+{
+    "name": "binder",
+    "tree": {
+        "$path": "Packages/",
+        "Binder": {
+            "$path": "default.project.json"
+        }
+    }
+}
