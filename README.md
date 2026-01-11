@@ -73,6 +73,17 @@ cleanupReference()
 
 If you want to just read the value directly without referencing it, `.Get()` is a way to get it. This is useful if you want to temporarily use the value without causing it to drop or preventing it from dropping.
 
+### LifetimeMapper
+
+Maps from a set of values to associated lifetimes.
+
+```luau
+local lifetimes = LifetimeMapper(lifetime)
+
+-- Get or create a lifetime associated with myObject
+local objectLifetime = lifetimes.Use(myObject)
+```
+
 ### Mapper
 
 This takes a lifetime and a constructor which maps from an input/key to an output.
