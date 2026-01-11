@@ -17,6 +17,8 @@ export type WeakMode = Types.WeakMode
 export type Lifetime = Types.Lifetime
 --- A simple reference counter implementation.
 export type RefCounter<T> = Types.RefCounter<T>
+--- A structure which maps from a set of values to associated lifetimes.
+export type LifetimeMapper<K> = Types.LifetimeMapper<K>
 --- A simple Map wrapper which maps keys to stored values.
 export type Mapper<K, V> = Types.Mapper<K, V>
 --- A packed varg in a function for convenience.

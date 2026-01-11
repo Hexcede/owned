@@ -2,12 +2,13 @@
 --!optimize 2
 --!native
 
-local Lifetime = require("../Lifetime/Lifetime")
 local Types = require("../Types")
 
 type Cleanup = Types.Cleanup
 
 type Lifetime = Types.Lifetime
+
+type LifetimeMapper<K> = Types.LifetimeMapper<K>
 
 type RefCounter<T> = Types.RefCounter<T>
 type Mapper<K, V> = Types.Mapper<K, V>
@@ -15,11 +16,9 @@ type Mapper<K, V> = Types.Mapper<K, V>
 local WeakMap = require("../Weak/WeakMap")
 local RefCounter = require("../RefCounter/RefCounter")
 
-local function Mapper<K, V>(lifetime: Lifetime, map: (key: K, lifetime: Lifetime) -> (V, () -> ()?)): Mapper<K, V>
-    local lifetimes: {[K]: Lifetime} = {}
+local function Mapper<K, V>(lifetimeMapper: LifetimeMapper<K>, map: (key: K, lifetime: Lifetime) -> (V, () -> ()?)): Mapper<K, V>
     local valueRefs: {[K]: RefCounter<V>} = {}
 
-    WeakMap.Weak(lifetimes, "k")
     WeakMap.Weak(valueRefs, "k")
 
     local function Has(key: K)
@@ -34,30 +33,12 @@ local function Mapper<K, V>(lifetime: Lifetime, map: (key: K, lifetime: Lifetime
         return valueRefs[key].Get()
     end
 
-    local function UseLifetime(key: K): (Lifetime)
-        local lifetime = lifetimes[key]
-
-        if lifetime then
-            return lifetime
-        end
-
-        local newLifetime = Lifetime(lifetime)
-
-        lifetimes[key] = newLifetime
-
-        newLifetime.Add(function()
-            lifetimes[key] = nil
-        end)
-
-        return newLifetime
-    end
-
     local function AddReference(key: K): RefCounter<V>
         if Has(key) then
             return valueRefs[key]
         end
 
-        local keyLifetimeRef = UseLifetime(key)
+        local keyLifetimeRef = lifetimeMapper.Use(key)
         local value, deferred = map(key, keyLifetimeRef)
 
         local refCounter = RefCounter(keyLifetimeRef, value)
@@ -86,16 +67,10 @@ local function Mapper<K, V>(lifetime: Lifetime, map: (key: K, lifetime: Lifetime
     end
 
     local function Drop(key: K)
-        local lifetime = lifetimes[key]
-
-        if lifetime then
-            lifetime.Drop()
-        end
+        lifetimeMapper.Drop(key)
     end
 
     local self: Mapper<K, V> = table.freeze({
-        UseLifetime = UseLifetime,
-
         Has = Has,
         Get = Get,
 

@@ -39,11 +39,18 @@ export type RefCounter<V> = {
     Drop: Cleanup,
 }
 
-export type Mapper<K, V> = {
+export type LifetimeMapper<K> = {
     --- Gets or creates a lifetime associated with the given key
     --- @return The lifetime associated with the given key
-    UseLifetime: (key: K) -> Lifetime,
+    Use: (key: K) -> Lifetime,
+    --- Gets or creates a reference to a lifetime associated with the given key
+    --- @return The reference to the lifetime associated with the given key
+    UseRef: (key: K) -> RefCounter<Lifetime>,
+    --- Forcefully drops the lifetime for the given key.
+    Drop: (key: K) -> (),
+}
 
+export type Mapper<K, V> = {
     --- @return Whether or not the key is present in the mapper
     Has: (key: K) -> boolean,
 
